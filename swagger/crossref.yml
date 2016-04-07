@@ -1,0 +1,232 @@
+swagger: "2.0"
+info:
+  title: Crossref API
+  description: Crossref API spec
+  version: "1.0.0"
+host: api.crossref.org
+schemes:
+  - http
+produces:
+  - application/json
+paths:
+  /works:
+    get:
+      summary: Search or get works
+      description: Search or get works. Works are journal articles, books, book chapters, theses, etc.
+      parameters:
+        - name: query
+          in: query
+          description: Query terms.
+          required: false
+          type: string
+        - name: rows
+          in: query
+          description: Number of records to return. Default 20, Max 1000
+          required: false
+          type: number
+          format: double
+        - name: filter
+          in: query
+          description: Filter options.
+          required: false
+          type: string
+        - name: offset
+          in: query
+          description: Number of record to start at, from 1 to infinity.
+          required: false
+          type: number
+          format: double
+        - name: sample
+          in: query
+          description: Number of random results to return. when you use the sample parameter, the rows and offset parameters are ignored
+          required: false
+          type: number
+          format: double
+        - name: sort
+          in: query
+          description: Field to sort on, one of score, relevance, updated, deposited, indexed, or published.
+          required: false
+          type: string
+        - name: order
+          in: query
+          description: Sort order, one of 'asc' or 'desc'.
+          required: false
+          type: string
+        - name: facet
+          in: query
+          description: Include facet results. Default false
+          required: false
+          type: boolean
+      responses:
+        "200":
+          description: An array of work items
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Works'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+definitions:
+  Works:
+    properties:
+      status:
+        type: string
+        description: status of request, "ok" if successful
+      message-type:
+        type: string
+        description: type of object returneds
+      message-version:
+        type: string
+        description: version of the API (i think?)
+      message:
+        type: array
+        description: results
+        items:
+          - $ref: '#/definitions/MessageItems'
+  MessageItems:
+    properties:
+      query:
+        type: array
+        items:
+          - $ref: '#/definitions/QueryItems'
+      items-per-page:
+        type: number
+        format: double
+      items:
+        type: array
+        items:
+          - $ref: '#/definitions/Item'
+      total-results:
+        type: number
+        format: double
+      facets:
+        type: array
+        items:
+          - $ref: '#/definitions/Facets'
+  QueryItems:
+    properties:
+      search-terms:
+        type: string
+      start-index:
+        type: number
+        format: double
+  Item:
+    properties:
+      indexed:
+        type: array
+        items:
+          - $ref: '#/definitions/XItems'
+      reference-count:
+        type: number
+        format: double
+      publisher:
+        type: string
+      issue:
+        type: string
+      DOI:
+        type: string
+      type:
+        type: string
+      created:
+        type: array
+        items:
+          - $ref: '#/definitions/XItems'
+      page:
+        type: string
+      source:
+        type: string
+      title:
+        type: array
+        items:
+          type: string
+      prefix:
+        type: string
+      volume:
+        type: string
+      author:
+        type: array
+        items:
+          - $ref: '#/definitions/AuthorItems'
+      member:
+        type: string
+      container-title:
+        type: array
+        items:
+          type: string
+      deposited:
+        type: array
+        items:
+          - $ref: '#/definitions/XItems'
+      score:
+        type: number
+        format: double
+      subtitle:
+        type: array
+        items:
+          type: string
+      issued:
+        type: array
+        items:
+          - $ref: '#/definitions/IssuedItem'
+      alternative-id:
+        type: array
+        items:
+          type: string
+      URL:
+        type: string
+      ISSN:
+        type: array
+        items:
+          type: string
+  IssuedItem:
+    properties:
+      date-parts:
+        type: array
+        items:
+          type: integer
+  XItems:
+    properties:
+      date-parts:
+        type: array
+        items:
+          type: integer
+      date-time:
+        type: string
+      timestamp:
+        type: number
+        format: double
+  AuthorItems:
+    properties:
+      affiliation:
+        type: array
+        items:
+          type: string
+      family:
+        type: string
+      given:
+        type: string
+  ErrorMessage:
+    properties:
+      type:
+        type: string
+      value:
+        type: string
+      message:
+        type: string
+  Facets:
+    properties:
+      attributes:
+        type: object
+        additionalProperties: {}
+  Error:
+    properties:
+      status:
+        type: string
+      message-type:
+        type: string
+      message:
+        type: array
+        items:
+          - $ref: '#/definitions/ErrorMessage'
